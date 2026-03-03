@@ -7,13 +7,13 @@
 class Card {
 
     public:
-    std::string color;  // single color
-    int number;         // single number
-    char variant;       // single variant
+    std::string color;  
+    int number;   
+    char variant;
+    int points;
 
-    // constructor
-    Card(const std::string& c, int n, char v)
-        : color(c), number(n), variant(v) {}
+    Card(std::string c = "", int n = 0, char v = 'a', int p = 0)
+        : color(c), number(n), variant(v), points(p) {}
 
 };
 
