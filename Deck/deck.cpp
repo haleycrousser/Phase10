@@ -8,29 +8,37 @@
 using namespace std;
 
 Deck::Deck() {
-        string colors[4] = {"Red", "Green", "Yellow", "Blue"};
-        int numbers[12] = {1,2,3,4,5,6,7,8,9,10,11,12};
-        char variants[2] = {'a','b'};
+        string colors[4] = {"Red", "Green", "Yellow", "Blue"}; //4 colors
+        int numbers[12] = {1,2,3,4,5,6,7,8,9,10,11,12}; //numbers
+        char variants[2] = {'a','b'}; //variant
 
-        standardDeck.reserve(96 + 4 + 8);  
+        standardDeck.reserve(96 + 4 + 8);  //reserves space in vector
 
         
-        for (const auto& color : colors) {
-            for (int num : numbers) {
-                for (char var : variants) {
-                    int pts = (num < 10) ? 5 : 10;
-                    standardDeck.push_back(Card(color, num, var, pts));
+        for (const auto& color : colors) { //for each color
+            for (int num : numbers) { //for each number
+                for (char var : variants) { //for each variant
+                    int pts = (num < 10) ? 5 : 10; //if num less then 10 -> 5 else 10 points
+                    standardDeck.push_back(Card(color, num, var, pts)); //create card object
                 }
             }
         }
 
         
-        for (const auto& color : colors) {
-            standardDeck.push_back(Card(color, 0, 's', 15));
+        for (int i = 0; i < 4; ++i) {
+            standardDeck.push_back(Card("Skip", 0, 's', 15)); //skip card worth 15 points
         }
 
         
         for (int i = 0; i < 8; ++i) {
-            standardDeck.push_back(Card("", 0, 'w', 25)); 
+            standardDeck.push_back(Card("Wild", 0, 'w', 25)); //wild card worth 25 points
         }
     }
+
+
+
+    void Deck::printStandardDeck() const {
+    for (const auto& card : standardDeck) {
+        std::cout << card << std::endl;
+    }
+}

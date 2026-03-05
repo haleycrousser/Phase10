@@ -18,6 +18,8 @@ class Deck {
 
     Deck(); //constructor
 
+    void printStandardDeck() const; //print standardDeck
+
 };
 
 #endif
