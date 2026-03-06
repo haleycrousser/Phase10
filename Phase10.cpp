@@ -12,7 +12,16 @@ int main() {
 
     Deck deck;
 
+    cout << "--------- Initialized Deck ---------\n";
+
     deck.printStandardDeck();
+
+    deck.shuffleDeck();
+
+    cout << "--------- Shuffled Deck ---------\n";
+
+    deck.printStandardDeck();
+
 
     return 0;
 }

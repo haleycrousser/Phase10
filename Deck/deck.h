@@ -13,12 +13,13 @@ class Deck {
     public:
     
     std::vector<Card> standardDeck;
-    std::vector<Card> shuffledDeck;
     std::vector<Card> discardPile;
 
     Deck(); //constructor
 
     void printStandardDeck() const; //print standardDeck
+
+    void shuffleDeck();
 
 };
 
