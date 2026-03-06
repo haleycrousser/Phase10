@@ -44,8 +44,7 @@ Deck::Deck() {
 
 
 void Deck::shuffleDeck() {
-    random_device rd;
-    mt19937 gen(rd());
-    shuffle(standardDeck.begin(), standardDeck.end(), gen);
-    return;
+    random_device rd; // random
+    mt19937 gen(rd()); // num generator
+    shuffle(standardDeck.begin(), standardDeck.end(), gen); //shuffle using <algorithm>
 }

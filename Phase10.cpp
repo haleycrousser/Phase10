@@ -11,6 +11,7 @@ using namespace std;
 int main() {
 
     Deck deck;
+    Player players;
 
     cout << "--------- Initialized Deck ---------\n";
 
@@ -21,6 +22,11 @@ int main() {
     cout << "--------- Shuffled Deck ---------\n";
 
     deck.printStandardDeck();
+
+    cout << "How many players? (2-6): ";
+    cin >> players.playersAmt;
+
+    cout << "\n---------" << players.playersAmt << " Players in game---------" << endl;
 
 
     return 0;

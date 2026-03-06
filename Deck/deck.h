@@ -18,8 +18,9 @@ class Deck {
     Deck(); //constructor
 
     void printStandardDeck() const; //print standardDeck
+    void printHands() const; //print every players hand
 
-    void shuffleDeck();
+    void shuffleDeck(); //shuffle cards
 
 };
 
