@@ -4,8 +4,6 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <random>
-#include <algorithm>
 
 
 using namespace std;
@@ -46,13 +44,8 @@ Deck::Deck() {
 
 
 void Deck::shuffleDeck() {
-
     random_device rd;
     mt19937 gen(rd());
-
     shuffle(standardDeck.begin(), standardDeck.end(), gen);
-
-
     return;
-
 }
