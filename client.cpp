@@ -15,7 +15,7 @@ int main() {
         memset(buf, 0, sizeof(buf));
         int n = recv(sockfd, buf, sizeof(buf) - 1, 0);
         buf[n] = '\0';
-        cout << "Server says: " << buf;
+        cout << buf;
 
         string ans;
         getline(cin, ans);
@@ -24,15 +24,14 @@ int main() {
         memset(buf, 0, sizeof(buf));
         n = recv(sockfd, buf, sizeof(buf) - 1, 0);
         buf[n] = '\0';
-        cout << "Server says: " << buf << "\n";
+        cout << buf << "\n";
 
         if (strcmp(buf, "Starting the game!") == 0) break;
     }
 /////////---------------------------------------------------------------------------/////////
-
-    ///////// GAME STARTS HERE //////////
+///////// GAME STARTS HERE //////////
     memset(buf, 0, sizeof(buf)); int n = recv(sockfd, buf, sizeof(buf) - 1, 0); buf[n] = '\0';
-    cout << "Server says: " << buf;
+    cout << buf;
 
     int players;
     cin >> players;
@@ -40,7 +39,7 @@ int main() {
 
 
 /////////---------------------------------------------------------------------------/////////
-    ////////// CLEAN UP //////////
+////////// CLEAN UP //////////
     closeConnection(sockfd);
     return 0;
 }

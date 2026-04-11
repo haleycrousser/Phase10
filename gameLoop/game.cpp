@@ -9,6 +9,12 @@ Game::Game() {
 
 }
 
+void Game::dealCards(){
+
+
+    
+}
+
 void Game::game_start(){
 
     cout << "Game Started!" << endl;

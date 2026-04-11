@@ -4,19 +4,17 @@
 #include <iostream>
 
 class Card {
-private:
-
-    std::string color;
-    int num;
-    char variant;
-    int points;
-
+    
 public:
+    string color;
+    int    num;
+    char   variant;
+    int    points;
+    bool   wild;
+    bool   skip;
 
-    Card();
-    Card(std::string color, int num, char variant, int points);
-    friend std::ostream& operator<<(std::ostream& os, const Card& card);
-
+    Card(string color, int num, char variant, int points, bool wild, bool skip);
+    static Card createCard(string color, int num, char variant, int points);
 };
 
 #endif

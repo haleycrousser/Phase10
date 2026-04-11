@@ -16,8 +16,10 @@ class Game {
 		void game_start();
 
 	private:
-		void turn_startPickUp (Card userPick, Deck standardOrDiscard);
-		void turn_endPlaceDown(Card userPick);
+	
+		void dealCards();
+
+//DEBUG
 		void printAllPlayerHands();
 
 };
