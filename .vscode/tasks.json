@@ -2,19 +2,21 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build Phase10",
+            "label": "Build Server",
             "type": "shell",
             "command": "C:/msys64/ucrt64/bin/g++.exe",
             "args": [
-                "main.cpp",
-                "Card/card.cpp",
-                "Deck/deck.cpp",
-                "Player/player.cpp",
-                "Game/game.cpp",
-                "Phase/phase.cpp",
+                "server.cpp",
+                "gameLoop/card.cpp",
+                "gameLoop/deck.cpp",
+                "gameLoop/player.cpp",
+                "gameLoop/game.cpp",
+                "gameLoop/phase.cpp",
+                "csapp/csapp.cpp",
+                "-lws2_32",
                 "-g",
                 "-o",
-                "phase10.exe"
+                "server.exe"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -25,6 +27,48 @@
             "group": {
                 "kind": "build",
                 "isDefault": false
+            }
+        },
+        {
+            "label": "Build Client",
+            "type": "shell",
+            "command": "C:/msys64/ucrt64/bin/g++.exe",
+            "args": [
+                "client.cpp",
+                "csapp/csapp.cpp",
+                "-lws2_32",
+                "-g",
+                "-o",
+                "client.exe"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "Build All",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-Command",
+                "C:/msys64/ucrt64/bin/g++.exe server.cpp gameLoop/card.cpp gameLoop/deck.cpp gameLoop/player.cpp gameLoop/game.cpp gameLoop/phase.cpp csapp/csapp.cpp -lws2_32 -g -o server.exe; C:/msys64/ucrt64/bin/g++.exe client.cpp csapp/csapp.cpp -lws2_32 -g -o client.exe"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
             }
         },
         {

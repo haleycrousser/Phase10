@@ -6,9 +6,18 @@
 #include "player.h"
 
 class Game {
-	void turn_startPickUp (Card userPick, Deck standardOrDiscard);
-	void turn_endPlaceDown(Card userPick);
-	void printAllPlayerHands();
+
+	public:
+		
+		bool gameStart;
+		void game_start();
+
+	private:
+
+		void turn_startPickUp (Card userPick, Deck standardOrDiscard);
+		void turn_endPlaceDown(Card userPick);
+		void printAllPlayerHands();
+
 };
 
 #endif

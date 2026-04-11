@@ -1,38 +1,42 @@
-// client.cpp
-// Compile: g++ -std=c++17 client.cpp csapp/csapp.cpp -o client -lws2_32
- 
 #include "csapp/csapp.h"
+
+using namespace std;
  
 int main() {
  
     ////////// CONNECT TO SERVER //////////
     SOCKET sockfd = connectToServer("127.0.0.1", "8080");
-    if (sockfd == INVALID_SOCKET) {
-        std::cerr << "Failed to connect to server\n";
-        return 1;
-    }
  
-    ////////// RECEIVE QUESTION FROM SERVER //////////
+    ////////// WOULD YOU LIKE TO START THE GAME? //////////
     char buf[256] = {};
-    int n = recv(sockfd, buf, sizeof(buf) - 1, 0);
-    if (n > 0) {
+
+    while (true) {
+
+        memset(buf, 0, sizeof(buf));
+        int n = recv(sockfd, buf, sizeof(buf) - 1, 0);
         buf[n] = '\0';
-        std::cout << "Server says: " << buf << "\n";
-    } else if (n == 0) {
-        std::cout << "Connection closed\n";
-        return 1;
-    } else {
-        NET_ERR("recv failed");
-        return 1;
+        cout << "Server says: " << buf << "\n";
+
+        string ans;
+        getline(cin, ans);
+        if (send(sockfd, ans.c_str(), (int)ans.size(), 0) == SOCKET_ERROR) NET_ERR("send failed");
+
+        memset(buf, 0, sizeof(buf));
+        n = recv(sockfd, buf, sizeof(buf) - 1, 0);
+        buf[n] = '\0';
+        cout << "Server says: " << buf << "\n";
+
+        if (strcmp(buf, "Starting the game!") == 0) break;
     }
+/////////---------------------------------------------------------------------------/////////
+
+    ///////// GAME STARTS HERE //////////
+
  
-    ////////// GET USER INPUT AND SEND TO SERVER //////////
-    std::string name;
-    std::getline(std::cin, name);
-    if (send(sockfd, name.c_str(), (int)name.size(), 0) == SOCKET_ERROR) {
-        NET_ERR("send failed");
-    }
- 
+
+
+
+/////////---------------------------------------------------------------------------/////////
     ////////// CLEAN UP //////////
     closeConnection(sockfd);
     return 0;
