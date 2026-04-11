@@ -41,8 +41,13 @@ int main() {
     }
 
 ////////// GAME STARTS HERE //////////
-
     Game game;
+
+    const char *question2 = "How many players would you like to play against? (2-6): ";
+    if (send(clientfd, question2, (int)strlen(question2), 0) == SOCKET_ERROR) NET_ERR("send failed");
+    memset(buf, 0, sizeof(buf)); int n = recv(clientfd, buf, sizeof(buf) - 1, 0); buf[n] = '\0';
+    game.totalPlayers = atoi(buf);
+
     game.game_start();
 
 
