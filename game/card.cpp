@@ -1,5 +1,7 @@
 #include "card.h"
 #include <iostream>
+#include <ostream>
+
 
 using namespace std;
 
@@ -24,4 +26,9 @@ Card Card::createCard(string color, int num, char variant, int points) {
     bool skip = (color == "Skip");
 
     return Card(color, num, variant, points, wild, skip);
+}
+
+ostream& operator<<(ostream& os, const Card& card) {
+    os << "[" << card.color << " | " << card.num << " | " << card.variant << " | " << card.points << " pts]";
+    return os;
 }

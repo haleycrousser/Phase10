@@ -6,10 +6,12 @@
 
 class Deck {
 
-    std::stack<Card> standardDeck;
-    std::stack<Card> discardPile;
-
 public:
+
+    std::stack<Card> standardDeck;
+    std::stack<Card> mainDeck;
+
+    
     Deck();
     void shuffleDeck();
 
