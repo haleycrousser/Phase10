@@ -1,11 +1,7 @@
 #include "card.h"
-#include <iostream>
-#include <ostream>
-
 
 using namespace std;
 
-//Stores the values for THIS one card
 Card::Card(string color, int num, char variant, int points, bool wild, bool skip) {
     this->color   = color;
     this->num     = num;
@@ -15,20 +11,14 @@ Card::Card(string color, int num, char variant, int points, bool wild, bool skip
     this->skip    = skip;
 }
 
-Card Card::createCard(string color, int num, char variant, int points) {
-
-    string validColors[] = {"Red", "Yellow", "Blue", "Green"};
-    int    validNums[]   = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-    char   validVariants[] = {'a', 'b'};
-    int    validPoints[] = {5, 10, 15, 25};
-
+Card Card::createCard(string color, int num, char variant, int points) { //create card
     bool wild = (color == "Wild");
     bool skip = (color == "Skip");
-
     return Card(color, num, variant, points, wild, skip);
 }
 
-ostream& operator<<(ostream& os, const Card& card) {
-    os << "[" << card.color << " | " << card.num << " | " << card.variant << " | " << card.points << " pts]";
+ostream& operator<<(ostream& os, const Card& card) { //print obj!
+    os << "[" << card.color << " | " << card.num
+       << " | " << card.variant << " | " << card.points << " pts]";
     return os;
 }

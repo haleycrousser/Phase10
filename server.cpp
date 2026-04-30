@@ -8,7 +8,7 @@
 #include <cstring>
 #include <vector>
 
-//#include "game\game.h"
+#include "game\game.h"
 
 #define PORT 8080
 
@@ -19,12 +19,11 @@ int num_players = 0;
 atomic<int> ready_count(0);     // how many players pressed 'y'
 atomic<int> connected_count(0); // how many players have connected
 
-// We store client sockets so we can broadcast the start message
 vector<socket_t> client_socks;
 mutex socks_mutex;
 
-// ── Per-client thread ──────────────────────────────────────────────────────
-void handle_client(socket_t connfd, int player_id) {
+// per-client thread
+void handle_client(socket_t connfd, int player_id, Game* game) {
     rio_t rio;
     rio_readinitb(&rio, connfd);
 
@@ -36,13 +35,13 @@ void handle_client(socket_t connfd, int player_id) {
                         "Waiting for all players to connect...\n";
     rio_writen(connfd, greet.c_str(), greet.size());
 
-    // Wait until both players are connected before asking to ready up
+    // Wait until all players are connected before asking to ready up
     while (connected_count < num_players) {
         this_thread::sleep_for(chrono::milliseconds(100));
     }
 
-    string prompt = "Both players connected!\n"
-                         "Press 'y' then Enter to ready up: ";
+    string prompt = "All players connected!\n"
+                    "Press 'y' then Enter to ready up: \n";
     rio_writen(connfd, prompt.c_str(), prompt.size());
 
     // --- Read until the player presses 'y' ---
@@ -50,9 +49,7 @@ void handle_client(socket_t connfd, int player_id) {
         memset(buf, 0, sizeof(buf));
         ssize_t n = rio_readlineb(&rio, buf, sizeof(buf));
         if (n <= 0) {
-            // Client disconnected
-            cout << "[server] Player " << (player_id + 1)
-                      << " disconnected.\n";
+            cout << "[server] Player " << (player_id + 1) << " disconnected.\n";
             return;
         }
 
@@ -64,9 +61,9 @@ void handle_client(socket_t connfd, int player_id) {
         if (buf[0] == 'y' || buf[0] == 'Y') {
             ready_count++;
             cout << "[server] Player " << (player_id + 1)
-                      << " is ready! (" << ready_count << "/" << num_players << ")\n";
+                 << " is ready! (" << ready_count << "/" << num_players << ")\n";
 
-            string ack = "You are ready! Waiting for the other player...\n";
+            string ack = "You are ready! Waiting for other players...\n";
             rio_writen(connfd, ack.c_str(), ack.size());
             break;
         } else {
@@ -75,17 +72,17 @@ void handle_client(socket_t connfd, int player_id) {
         }
     }
 
-    // --- Spin until both players are ready ---
+    // --- Spin until all players are ready ---
     while (ready_count < num_players) {
         this_thread::sleep_for(chrono::milliseconds(100));
     }
 
     // --- Notify this player ---
-    string start_msg = "\n*** Both players are ready! ***\n"
-                            "The game would start here — good luck!\n";
+    string start_msg = "\nGame is starting!! Good Luck!\n";
     rio_writen(connfd, start_msg.c_str(), start_msg.size());
 
-    // (Game loop goes here in a full implementation)
+    // --- Game loop ---
+    game->player_loop(player_id, connfd);
 
     // Clean up
     close_socket(connfd);
@@ -111,12 +108,11 @@ int main() {
         return 1;
     }
 
-    cout << "[server] Listening on port " << PORT
-              << " — waiting for " << num_players << " players...\n";
+    cout << "[server] Waiting for " << num_players << " players...\n";
 
     client_socks.resize(num_players);
-    vector<thread> threads(num_players);
 
+    // --- Accept ALL connections first, before spawning any threads ---
     for (int i = 0; i < num_players; i++) {
         struct sockaddr_in clientaddr;
         socklen_t clientlen = sizeof(clientaddr);
@@ -136,15 +132,24 @@ int main() {
 
         connected_count++;
         cout << "[server] Player " << (i + 1) << " connected. ("
-                  << connected_count << "/" << num_players << ")\n";
-
-        threads[i] = thread(handle_client, connfd, i);
+             << connected_count << "/" << num_players << ")\n";
     }
 
+    // --- Create the game now that all sockets are known ---
+    Game* game = new Game(num_players, client_socks);
+
+    // --- Spawn one thread per player, passing the shared game ---
+    vector<thread> threads(num_players);
+    for (int i = 0; i < num_players; i++) {
+        threads[i] = thread(handle_client, client_socks[i], i, game);
+    }
+
+    // --- Wait for all threads to finish ---
     for (int i = 0; i < num_players; i++) {
         if (threads[i].joinable()) threads[i].join();
     }
 
+    delete game;
     close_socket(listenfd);
     cleanup_winsock();
 

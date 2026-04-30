@@ -8,6 +8,8 @@
 #define HOST "127.0.0.1"
 #define PORT 8080
 
+using namespace std;
+
 // ── Receiver thread ────────────────────────────────────────────────────────
 // Continuously reads lines from the server and prints them.
 // Runs concurrently so the main thread can read user input at the same time.
@@ -37,7 +39,7 @@ void receive_loop(socket_t fd) {
 int main() {
     init_winsock();
 
-    std::cout << "[client] Connecting to " << HOST << ":" << PORT << "...\n";
+    std::cout << "[client] Connecting ...\n";
 
     socket_t fd = open_clientfd(HOST, PORT);
     if (fd == INVALID_SOCK) {

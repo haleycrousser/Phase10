@@ -4,7 +4,7 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}",
-                "${workspaceFolder}/csapp",
+                "${workspaceFolder}/network",
                 "${workspaceFolder}/gameLoop"
             ],
             "defines": [
