@@ -1,73 +1,79 @@
-#include "network\csapp.h"
+#include "network\csapp.h" //using my csapp wrapper for sockets and rio functions
 #include <iostream>
 #include <string>
 #include <cstring>
 #include <thread>
+#include <chrono>
 #include <atomic>
 
-#define HOST "127.0.0.1"
-#define PORT 8080
+#define HOST "127.0.0.1" //server address, using localhost for testing on the same computer
+#define PORT 8080        //server port the client connects to
 
 using namespace std;
 
-// ── Receiver thread ────────────────────────────────────────────────────────
-// Continuously reads lines from the server and prints them.
-// Runs concurrently so the main thread can read user input at the same time.
-std::atomic<bool> running(true);
+atomic<bool> running(true); //keeps the receive loop running while the client is connected
 
-void receive_loop(socket_t fd) {
-    rio_t rio;
-    rio_readinitb(&rio, fd);
+void receive_loop(socket_t fd) { //keeps receiving messages from the server while the user can still type
+    char buf[1024]; //stores messages coming from the server
 
-    char buf[1024];
     while (running) {
-        memset(buf, 0, sizeof(buf));
-        ssize_t n = rio_readlineb(&rio, buf, sizeof(buf));
-        if (n <= 0) {
-            // Server closed connection — exit immediately so the user
-            // doesn't have to press Enter again to unblock getline
-            std::cout << "\n[client] Server disconnected.\n";
+        memset(buf, 0, sizeof(buf)); //clear the buffer before receiving a new message
+
+#ifdef _WIN32
+        int n = recv(fd, buf, sizeof(buf) - 1, 0); //windows recv returns int
+#else
+        ssize_t n = recv(fd, buf, sizeof(buf) - 1, 0); //linux/mac recv returns ssize_t
+#endif
+
+        if (n <= 0) { //server closed connection or something went wrong
+            this_thread::sleep_for(chrono::milliseconds(500));
+            cout << "\n[client] Server disconnected.\n";
             exit(0);
         }
-        // Print whatever the server sends, flushing immediately
-        std::cout << buf;
-        std::cout.flush();
+
+        buf[n] = '\0'; //make sure the received message ends like a string
+
+        this_thread::sleep_for(chrono::milliseconds(500));
+        cout << buf; //print whatever the server sent
+        cout.flush();
     }
 }
 
-// ── main ───────────────────────────────────────────────────────────────────
 int main() {
-    init_winsock();
+    init_winsock(); //starts winsock on windows before using sockets
 
-    std::cout << "[client] Connecting ...\n";
+    this_thread::sleep_for(chrono::milliseconds(500));
+    cout << "[client] Connecting ...\n";
 
-    socket_t fd = open_clientfd(HOST, PORT);
+    socket_t fd = open_clientfd(HOST, PORT); //connect to the server
     if (fd == INVALID_SOCK) {
-        std::cerr << "[client] Could not connect to server.\n";
+        this_thread::sleep_for(chrono::milliseconds(500));
+        cerr << "[client] Could not connect to server.\n";
         cleanup_winsock();
         return 1;
     }
 
-    std::cout << "[client] Connected!\n";
+    this_thread::sleep_for(chrono::milliseconds(500));
+    cout << "[client] Connected!\n";
 
-    // Start background thread that prints server messages
-    std::thread recv_thread(receive_loop, fd);
+    thread recv_thread(receive_loop, fd); //separate thread so server messages can print while user types
 
-    // Main thread: read input from this terminal and send it to the server
-    std::string line;
-    while (running && std::getline(std::cin, line)) {
-        line += '\n';  // server reads until '\n'
+    string line;
+    while (running && getline(cin, line)) { //read user input and send it to the server
+        line += '\n'; //server expects lines ending with newline
+
         if (rio_writen(fd, line.c_str(), line.size()) < 0) {
-            std::cerr << "[client] Send failed.\n";
+            this_thread::sleep_for(chrono::milliseconds(500));
+            cerr << "[client] Send failed.\n";
             break;
         }
     }
 
-    running = false;
-    close_socket(fd);
+    running = false; //tell receive loop to stop
+    close_socket(fd); //close connection to server
 
-    if (recv_thread.joinable()) recv_thread.join();
+    if (recv_thread.joinable()) recv_thread.join(); //wait for receive thread to finish
 
-    cleanup_winsock();
+    cleanup_winsock(); //cleanup winsock before ending program
     return 0;
 }

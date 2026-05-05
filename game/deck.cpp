@@ -1,86 +1,75 @@
 #include "deck.h"
 #include <iostream>
-#include <algorithm>  // std::shuffle
-#include <random>     // std::mt19937, std::random_device
+#include <algorithm>
+#include <random>
 #include <stdexcept>
+#include <thread>
+#include <chrono>
 
 using namespace std;
 
-// ── Constructor ────────────────────────────────────────────────────────────
 Deck::Deck() {
     buildDeck();
     shuffleDeck();
 }
 
-// ── buildDeck ──────────────────────────────────────────────────────────────
-// Standard Phase 10 deck = 108 cards:
-//   96 number cards  — 2 copies of 1-12 in each of 4 colours
-//                      variant 'a' = first copy, 'b' = second copy
-//    8 Wild cards    — 25 pts each
-//    4 Skip cards    — 15 pts each
 void Deck::buildDeck() {
     cards.clear();
     cards.reserve(108);
 
-    // Point value by number
-    //   1-9  →  5 pts
-    //  10-12 → 10 pts
-    auto pointsFor = [](int num) -> int {
-        if (num <= 9) return 5;
-        return 10;
+    auto pointsFor = [](int num) -> int { //set points based on card number
+        return (num <= 9) ? 5 : 10;
     };
 
-    const string colors[] = { "Red", "Yellow", "Blue", "Green" };
-    const char   variants[] = { 'a', 'b' };  // two copies of each card
+//variables for card properties, used to create card objects and push to deck vector
 
-    // 96 number cards
-    for (const string& color : colors) {
-        for (int num = 1; num <= 12; num++) {
-            for (char variant : variants) {
+    const string colors[]   = { "Red", "Yellow", "Blue", "Green" };
+    const char   variants[] = { 'a', 'b' };
+
+//2 of each color/number or variant combination
+
+    for (const string& color : colors)
+        for (int num = 1; num <= 12; num++)
+            for (char variant : variants)
                 cards.push_back(Card(color, num, variant, pointsFor(num), false, false));
-            }
-        }
-    }
 
-    // 8 Wild cards (no colour, no number — use 0 and '-' as placeholders)
-    for (int i = 0; i < 8; i++) {
-        char variant = (i < 4) ? 'a' : 'b';
-        cards.push_back(Card("Wild", 0, variant, 25, true, false));
-    }
+// 8 wilds, 4 skips
+    for (int i = 0; i < 8; i++)
+        cards.push_back(Card("Wild", 0, (i < 4) ? 'a' : 'b', 25, true, false));
 
-    // 4 Skip cards
-    for (int i = 0; i < 4; i++) {
-        char variant = (i < 2) ? 'a' : 'b';
-        cards.push_back(Card("Skip", 0, variant, 15, false, true));
-    }
+    for (int i = 0; i < 4; i++)
+        cards.push_back(Card("Skip", 0, (i < 2) ? 'a' : 'b', 15, false, true));
 }
 
-// ── shuffleDeck ────────────────────────────────────────────────────────────
-// Fisher-Yates shuffle via std::shuffle with a Mersenne Twister seeded from
-// the hardware random device — much better than rand().
+//easy shuffle using built-in random generator
 void Deck::shuffleDeck() {
     mt19937 rng(random_device{}());
     shuffle(cards.begin(), cards.end(), rng);
 }
 
-// ── drawCard ───────────────────────────────────────────────────────────────
-// Removes and returns the top card (back of vector).
+//draw from top of deck (back of vector)
 Card Deck::drawCard() {
-    if (cards.empty()) {
-        throw runtime_error("Deck is empty!");
-    }
+    if (cards.empty()) throw runtime_error("Deck is empty!");
     Card top = cards.back();
     cards.pop_back();
     return top;
 }
 
-bool Deck::isEmpty() const { return cards.empty(); }
-int  Deck::size()    const { return (int)cards.size(); }
+//view top card without removing it
+Card Deck::peekCard() const {
+    if (cards.empty()) throw runtime_error("Deck is empty!");
+    return cards.back();
+}
 
-// ── printDeck ──────────────────────────────────────────────────────────────
+bool Deck::isEmpty() const { return cards.empty(); } //return value of whether deck is empty
+int  Deck::size()    const { return (int)cards.size(); } //return number of cards remaining in deck
+
+//debug function to print contents of deck
 void Deck::printDeck() {
+    this_thread::sleep_for(chrono::milliseconds(500));
     cout << "[Deck] " << cards.size() << " cards remaining:\n";
     for (int i = (int)cards.size() - 1; i >= 0; i--) {
+        this_thread::sleep_for(chrono::milliseconds(500));
         cout << "  " << cards[i] << "\n";
     }
 }

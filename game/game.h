@@ -14,47 +14,49 @@
 
 class Game {
 public:
-    Game(int num_players, std::vector<socket_t>& sockets);
-
-    // Each player thread calls this — blocks until game over
-    void player_loop(int player_id, socket_t fd);
+    Game(int num_players, std::vector<socket_t>& sockets); //constructor, takes number of players and the socket list from the server
+    void player_loop(int player_id, socket_t fd); //starts the game loop for player 0 and keeps other player threads waiting until game ends
 
 private:
-    int num_players;
-    std::vector<socket_t> socks;
-    std::vector<rio_t>    rios;
-    std::vector<Player>   players;
-    Deck              deck;
-    std::vector<Card> discardPile;  // back() = top card
+    int num_players;                 //number of players in the game
+    std::vector<socket_t> socks;      //stores each player's socket so the game can send messages to them
+    std::vector<rio_t>    rios;       //stores rio buffers for reading player input
+    std::vector<Player>   players;    //stores all player objects
+    Deck              deck;           //main draw deck
+    std::vector<Card> discardPile;    //discard pile cards
 
-    std::atomic<int>  current_player{0};
-    std::atomic<bool> game_over{false};
-    std::mutex              turn_mutex;
-    std::condition_variable turn_cv;
+    std::atomic<int>  current_player{0};   //keeps track of whose turn it is
+    std::atomic<bool> game_over{false};    //used to tell all threads when the game is over
+    std::mutex              turn_mutex;    //mutex used with the condition variable
+    std::condition_variable turn_cv;       //wakes up waiting player threads when the game ends
 
-    // ── Core loop ──────────────────────────────────────────────────────────
-    void run();
+    void run(); //main game loop, handles rounds and player turns
 
-    // ── Turn actions ───────────────────────────────────────────────────────
-    void dealCards();                   // deal 10 cards each, flip discard
-    void sendHand(int player_id);       // send formatted hand to one player
-    void drawPhase(int player_id);      // draw from deck or discard pile
-    void layDownPhase(int player_id);   // select cards, validate, lay down
-    void hitPhase(int player_id);       // add a card to any phase area
-    void discardCard(int player_id);    // must discard one card per turn
+  
+    void dealCards();              //deals cards to each player and resets round info
+    void sortHand(int player_id);  //sorts a player's hand so it is easier to read
+    void sendHand(int player_id);  //sends the player's current hand and phase info
+    void drawPhase(int player_id); //handles drawing from deck or discard pile
+    void layDownPhase(int player_id); //lets player choose cards to lay down their phase
+    void hitPhase(int player_id);     //hits valid cards onto completed phase areas
+    void discardCard(int player_id);  //lets player discard one card at the end of their turn
 
-    // ── Round end ──────────────────────────────────────────────────────────
-    void tallyScores();     // add handScore() penalty to each player
-    bool checkGameWon();    // true if anyone has passed phase 10
 
-    // ── Helpers ────────────────────────────────────────────────────────────
-    void        broadcast(const std::string& msg);
-    void        send_to(int player_id, const std::string& msg);
-    std::string recv_from(int player_id);   // blocking, strips \r\n
+    void tallyScores();     //adds leftover hand points to each player's score
+    bool checkGameWon();    //checks if someone passed phase 10 and announces winner
 
-    std::string          phaseDescription(int phaseNum);
-    std::string          cardToString(const Card& c);
-    std::vector<int>     parseIndices(const std::string& input, int handSize);
+
+    bool        cardFitsArea(const Card& card, const std::vector<Card>& area, int phaseNum); //checks if a card can be hit onto a phase area
+    void        broadcast(const std::string& msg); //sends a message to every player
+    void        send_to(int player_id, const std::string& msg); //sends a message to one specific player
+    std::string recv_from(int player_id); //reads input from one specific player
+    void        pause(int ms = 1000); //small delay so messages do not print too fast
+
+    std::string      formatPhaseArea(const std::vector<Card>& area, int phaseNum); //formats a player's laid down phase area
+    std::string      phaseAreasString(); //builds the string showing all phase areas
+    std::string      phaseDescription(int phaseNum); //returns the rule for a phase number
+    std::string      cardToString(const Card& c); //converts a card into readable text
+    std::vector<int> parseIndices(const std::string& input, int handSize); //turns typed card numbers into valid hand indexes
 };
 
 #endif

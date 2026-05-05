@@ -10,11 +10,11 @@ public:
  
     void    shuffleDeck();
     Card    drawCard();       // pop from top
+    Card    peekCard() const; // view top card without removing it
     bool    isEmpty() const;
     int     size()    const;
  
-    // debug
-    void printDeck();
+    void printDeck(); // debug
  
 private:
     std::vector<Card> cards;  // index 0 = bottom, back() = top
@@ -22,4 +22,3 @@ private:
 };
  
 #endif
- 

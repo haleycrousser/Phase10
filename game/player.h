@@ -14,6 +14,7 @@ public:
     int               currentPhase;
     int               score;
     bool              completedPhase;
+    bool              skipped;     // true = this player loses their next turn
 
     Player();
     Player(int id, std::string name);

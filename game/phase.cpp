@@ -4,10 +4,7 @@
 
 using namespace std;
 
-// ── isSet ──────────────────────────────────────────────────────────────────
-// A valid set: all non-wild cards share the same number.
-// Wilds count as any number. Skip cards are never valid in a set.
-bool Phase::isSet(vector<Card> cards, int size) {
+bool Phase::isSet(vector<Card> cards, int size) { //checks for set of same number
     if ((int)cards.size() != size) return false;
 
     int setNum = -1;
@@ -20,16 +17,8 @@ bool Phase::isSet(vector<Card> cards, int size) {
     return true;
 }
 
-// ── isRun ──────────────────────────────────────────────────────────────────
-// A valid run: non-wild cards are all different and consecutive when wilds
-// fill the gaps. Skip cards are never valid in a run.
-//
-// Algorithm:
-//   1. Collect non-wild numbers, count wilds.
-//   2. No duplicate numbers allowed.
-//   3. gaps  = holes between the min and max numbers.
-//   4. Valid if gaps <= wilds AND the total span fits within `size`.
-bool Phase::isRun(vector<Card> cards, int size) {
+
+bool Phase::isRun(vector<Card> cards, int size) { //checks for run of consecutive numbers
     if ((int)cards.size() != size) return false;
 
     vector<int> nums;
@@ -56,10 +45,8 @@ bool Phase::isRun(vector<Card> cards, int size) {
     return gaps <= wilds && range <= size;
 }
 
-// ── isColor ────────────────────────────────────────────────────────────────
-// A valid color group: all non-wild cards share the same color.
-// Wilds count as any color. Skip cards are invalid.
-bool Phase::isColor(vector<Card> cards, int size) {
+
+bool Phase::isColor(vector<Card> cards, int size) { //checks if color
     if ((int)cards.size() != size) return false;
 
     string targetColor;
@@ -71,6 +58,8 @@ bool Phase::isColor(vector<Card> cards, int size) {
     }
     return true;
 }
+
+//the following function was created with the use of AI:
 
 // ── tryTwoComponents ───────────────────────────────────────────────────────
 // Tries every way to split `cards` into a group of size1 and a group of
@@ -105,9 +94,9 @@ bool Phase::tryTwoComponents(
     return false;
 }
 
-// ── Phase checkers ─────────────────────────────────────────────────────────
 
-// Phase 1 — 2 sets of 3  (6 cards)
+
+// Phase 1 
 bool Phase::phaseOne(const vector<Card>& c) {
     if ((int)c.size() != 6) return false;
     return tryTwoComponents(c, 3, 3,
@@ -115,7 +104,7 @@ bool Phase::phaseOne(const vector<Card>& c) {
         [](vector<Card> g) { return Phase::isSet(g, 3); });
 }
 
-// Phase 2 — set of 3 + run of 4  (7 cards)
+// Phase 2
 bool Phase::phaseTwo(const vector<Card>& c) {
     if ((int)c.size() != 7) return false;
     return tryTwoComponents(c, 3, 4,
@@ -127,7 +116,7 @@ bool Phase::phaseTwo(const vector<Card>& c) {
         [](vector<Card> g) { return Phase::isSet(g, 3); });
 }
 
-// Phase 3 — set of 4 + run of 4  (8 cards)
+// Phase 3
 bool Phase::phaseThree(const vector<Card>& c) {
     if ((int)c.size() != 8) return false;
     return tryTwoComponents(c, 4, 4,
@@ -139,25 +128,25 @@ bool Phase::phaseThree(const vector<Card>& c) {
         [](vector<Card> g) { return Phase::isSet(g, 4); });
 }
 
-// Phase 4 — run of 7  (7 cards)
+// Phase 4
 bool Phase::phaseFour(const vector<Card>& c) {
     if ((int)c.size() != 7) return false;
     return isRun(c, 7);
 }
 
-// Phase 5 — run of 8  (8 cards)
+// Phase 5 
 bool Phase::phaseFive(const vector<Card>& c) {
     if ((int)c.size() != 8) return false;
     return isRun(c, 8);
 }
 
-// Phase 6 — run of 9  (9 cards)
+// Phase 6 
 bool Phase::phaseSix(const vector<Card>& c) {
     if ((int)c.size() != 9) return false;
     return isRun(c, 9);
 }
 
-// Phase 7 — 2 sets of 4  (8 cards)
+// Phase 7 
 bool Phase::phaseSeven(const vector<Card>& c) {
     if ((int)c.size() != 8) return false;
     return tryTwoComponents(c, 4, 4,
@@ -195,8 +184,7 @@ bool Phase::phaseTen(const vector<Card>& c) {
         [](vector<Card> g) { return Phase::isSet(g, 5); });
 }
 
-// ── checkPhase ─────────────────────────────────────────────────────────────
-// Main entry point called by Game.
+//check if phase is correct
 bool Phase::checkPhase(int phaseNum, const vector<Card>& cards) {
     switch (phaseNum) {
         case 1:  return phaseOne  (cards);

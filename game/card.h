@@ -19,7 +19,7 @@ public:
     static Card createCard(std::string color, int num, char variant, int points); //create card obj
 };
 
-// Stream operator declared here so anything including card.h can use it
+// stream operator declared here so anything including card.h can use it
 std::ostream& operator<<(std::ostream& os, const Card& card);
 
 #endif
